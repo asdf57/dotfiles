@@ -1,0 +1,41 @@
+[[language]]
+name = "rust"
+auto-format = false
+
+[[language]]
+name = "lua"
+auto-format = true
+
+[[language]]
+name = "bash"
+file-types = [
+  "sh",
+  "bash",
+  "zsh",
+  ".bash_login",
+  ".bash_logout",
+  ".bash_profile",
+  ".bashrc",
+  ".profile",
+  ".zshenv",
+  "zshenv",
+  ".zlogin",
+  "zlogin",
+  ".zlogout",
+  "zlogout",
+  ".zprofile",
+  "zprofile",
+  ".zshrc",
+  "zshrc",
+  ".zimrc",
+  "APKBUILD",
+  "PKGBUILD",
+  "eclass",
+  "ebuild",
+  "bazelrc",
+  ".bash_aliases",
+  "Renviron",
+  ".Renviron",
+  "conf"
+]
+shebangs = ["sh", "bash", "dash", "zsh", "nix-shell"]
