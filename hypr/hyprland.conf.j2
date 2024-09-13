@@ -3,8 +3,9 @@
 ################
 
 # See https://wiki.hyprland.org/Configuring/Monitors/
-monitor=,preferred,auto,auto
-
+{% for monitor in hypr.monitors %}
+monitor = {{ monitor.name }}, {{ monitor.resolution }}, {{ monitor.position }}, {{ monitor.scale }}
+{% endfor %}
 
 ###################
 ### MY PROGRAMS ###
@@ -117,6 +118,12 @@ master {
 }
 
 # https://wiki.hyprland.org/Configuring/Variables/#misc
+misc {
+{% for key, value in hypr.misc.items() %}
+    {{ key }} = {{ value }}
+{% endfor %}
+}
+
 misc {
     force_default_wallpaper = -1 # Set to 0 or 1 to disable the anime mascot wallpapers
     disable_hyprland_logo = false # If true disables the random hyprland logo / anime girl background. :(
