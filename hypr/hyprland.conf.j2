@@ -28,9 +28,11 @@
 ################
 
 # See https://wiki.hyprland.org/Configuring/Monitors/
+{% if hyper.monitors is defined %}
 {% for monitor in hypr.monitors %}
 monitor = {{ monitor.name }}, {{ monitor.resolution }}, {{ monitor.position }}, {{ monitor.scale }}
 {% endfor %}
+
 
 ###################
 ### MY PROGRAMS ###
@@ -39,9 +41,11 @@ monitor = {{ monitor.name }}, {{ monitor.resolution }}, {{ monitor.position }}, 
 # See https://wiki.hyprland.org/Configuring/Keywords/
 
 # Set programs that you use
-{% for varname, cmd in hypr.programs %}
+{% if hypr.programs is defined %}
+{% for varname, cmd in hypr.programs.items() %}
 "${{ varname }}" = "{{ cmd }}"
 {% endfor %}
+{% endif %}
 
 #################
 ### AUTOSTART ###
@@ -49,6 +53,7 @@ monitor = {{ monitor.name }}, {{ monitor.resolution }}, {{ monitor.position }}, 
 
 # Autostart necessary processes (like notifications daemons, status bars, etc.)
 # Or execute your favorite apps at launch like this:
+{% if hypr.autostart is defined %}
 {% for cmd in hypr.autostart %}
 exec-once = {{ cmd }}
 {% endfor %}
@@ -58,9 +63,11 @@ exec-once = {{ cmd }}
 #############################
 
 # See https://wiki.hyprland.org/Configuring/Environment-variables/
+{% if hyper.env is defined %}
 {% for key, value in hypr.env.items() %}
 env = {{ key }},{{ value }}
 {% endfor %}
+{% endif %}
 
 #####################
 ### LOOK AND FEEL ###
@@ -123,9 +130,11 @@ master {
 
 # https://wiki.hyprland.org/Configuring/Variables/#misc
 misc {
+{% if hypr.misc is defined %}
 {% for key, value in hypr.misc.items() %}
     {{ key }} = {{ value }}
 {% endfor %}
+{% endif %}
 }
 
 #############
