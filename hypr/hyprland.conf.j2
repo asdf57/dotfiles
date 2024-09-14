@@ -13,14 +13,14 @@
     {% endfor %}
 {% endmacro %}
 
-{% macro render_dot_section(data, indent=0) %}
-{%- for key, value in data.items() %}
-    {{ ' ' * indent }}{{ key }} = {% if value is mapping %}
-    {{ '\n' }}{{ render_dot_section(value, indent + 4) }}
-    {%- else -%}
-    {{ value }}
-    {%- endif %}
-{%- endfor %}
+{% macro render_dot_section(section, prefix=[], indent=0) %}
+    {% - for key, value in section.items() %}
+        {% - if value is mapping %}
+            {{ render_dot_section(value, prefix + [key], indent+4) }}
+        {% - else %}
+            "{{ ' ' * indent }}{{ (prefix + [key]) | join('_') }}" = {{ value }}
+        {% - endif %}
+    {% - endfor %}
 {% endmacro %}
 
 ################
