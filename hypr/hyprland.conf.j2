@@ -13,7 +13,7 @@
     {% endfor %}
 {% endmacro %}
 
-{% macro render_section(data, indent=0) %}
+{% macro render_dot_section(data, indent=0) %}
 {%- for key, value in data.items() %}
     {{ ' ' * indent }}{{ key }} = {% if value is mapping %}
     {{ '\n' }}{{ render_section(value, indent + 4) }}
