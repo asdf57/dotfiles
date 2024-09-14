@@ -32,6 +32,7 @@
 {% for monitor in hypr.monitors %}
 monitor = {{ monitor.name }}, {{ monitor.resolution }}, {{ monitor.position }}, {{ monitor.scale }}
 {% endfor %}
+{% endif %}
 
 
 ###################
@@ -57,6 +58,7 @@ monitor = {{ monitor.name }}, {{ monitor.resolution }}, {{ monitor.position }}, 
 {% for cmd in hypr.autostart %}
 exec-once = {{ cmd }}
 {% endfor %}
+{% endif %}
 
 #############################
 ### ENVIRONMENT VARIABLES ###
@@ -140,10 +142,11 @@ misc {
 #############
 ### INPUT ###
 #############
-
+{% if hypr.input is defined %}
 {% for key, value in hypr.input.items() %}
     {{ key }} = {{ value }}
 {% endfor %}
+{% endif %}
 
 # https://wiki.hyprland.org/Configuring/Variables/#input
 input {
