@@ -1,4 +1,29 @@
 ################
+#### MACROS ####
+################
+{% macro render_section(section) %}
+    {% for key, value in section.items() %}
+        {% if value is mapping %}
+            {{ key }} {
+            {{ render_section(value) }}
+            }
+        {% else %}
+            {{ key }} = {{ value }}
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
+
+{% macro render_dot_section(section, prefix=[]) %}
+    {% for key, value in section.items() %}
+        {% if value is mapping %}
+            {{ render_dot_section(value, prefix + [key]) }}
+        {% else %}
+            "{{ (prefix + [key]) | join('_') }}" = {{ value }}
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
+
+################
 ### MONITORS ###
 ################
 
@@ -14,10 +39,9 @@ monitor = {{ monitor.name }}, {{ monitor.resolution }}, {{ monitor.position }}, 
 # See https://wiki.hyprland.org/Configuring/Keywords/
 
 # Set programs that you use
-$terminal = kitty
-$fileManager = dolphin
-$menu = wofi --show drun
-
+{% for varname, cmd in hypr.programs %}
+"${{ varname }}" = "{{ cmd }}"
+{% endfor %}
 
 #################
 ### AUTOSTART ###
@@ -25,46 +49,26 @@ $menu = wofi --show drun
 
 # Autostart necessary processes (like notifications daemons, status bars, etc.)
 # Or execute your favorite apps at launch like this:
-
-# exec-once = $terminal
-# exec-once = nm-applet &
-# exec-once = waybar & hyprpaper & firefox
-
+{% for cmd in hypr.autostart %}
+exec-once = {{ cmd }}
+{% endfor %}
 
 #############################
 ### ENVIRONMENT VARIABLES ###
 #############################
 
 # See https://wiki.hyprland.org/Configuring/Environment-variables/
-
-env = XCURSOR_SIZE,24
-env = HYPRCURSOR_SIZE,24
-
+{% for key, value in hypr.env.items() %}
+env = {{ key }},{{ value }}
+{% endfor %}
 
 #####################
 ### LOOK AND FEEL ###
 #####################
 
-# Refer to https://wiki.hyprland.org/Configuring/Variables/
-
 # https://wiki.hyprland.org/Configuring/Variables/#general
 general {
-    gaps_in = 5
-    gaps_out = 20
-
-    border_size = 2
-
-    # https://wiki.hyprland.org/Configuring/Variables/#variable-types for info about colors
-    col.active_border = rgba(33ccffee) rgba(00ff99ee) 45deg
-    col.inactive_border = rgba(595959aa)
-
-    # Set to true enable resizing windows by clicking and dragging on borders and gaps
-    resize_on_border = false
-
-    # Please see https://wiki.hyprland.org/Configuring/Tearing/ before you turn this on
-    allow_tearing = false
-
-    layout = dwindle
+    {{ render_dot_section(hypr.general) }}
 }
 
 # https://wiki.hyprland.org/Configuring/Variables/#decoration
@@ -124,15 +128,13 @@ misc {
 {% endfor %}
 }
 
-misc {
-    force_default_wallpaper = -1 # Set to 0 or 1 to disable the anime mascot wallpapers
-    disable_hyprland_logo = false # If true disables the random hyprland logo / anime girl background. :(
-}
-
-
 #############
 ### INPUT ###
 #############
+
+{% for key, value in hypr.input.items() %}
+    {{ key }} = {{ value }}
+{% endfor %}
 
 # https://wiki.hyprland.org/Configuring/Variables/#input
 input {
