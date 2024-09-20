@@ -1,26 +1,13 @@
-################
-#### MACROS ####
-################
-{% macro render_section(section) %}
-    {% for key, value in section.items() %}
-        {% if value is mapping %}
-            {{ key }} {
-            {{ render_section(value) }}
-            }
-        {% else %}
-            {{ key }} = {{ value }}
-        {% endif %}
+{% macro render_section(section, indent=4) %}
+    {%- for key, value in section.items() -%}
+        {%- if value is mapping -%}
+            {{ ' ' * indent }}{{ key }} { {{ "\n" }}
+            {{- render_section(value, indent+4) -}}
+            {{ ' ' * indent }}}
+        {%- else -%}
+            {{ ' ' * indent }}{{ key }} = {{ value }} {{ "\n" }}
+        {%- endif -%}
     {% endfor %}
-{% endmacro %}
-
-{% macro render_dot_section(section, prefix=[], indent=0) %}
-    {% - for key, value in section.items() %}
-        {% - if value is mapping %}
-            {{ render_dot_section(value, prefix + [key], indent+4) }}
-        {% - else %}
-            "{{ ' ' * indent }}{{ (prefix + [key]) | join('_') }}" = {{ value }}
-        {% - endif %}
-    {% - endfor %}
 {% endmacro %}
 
 ################
@@ -28,24 +15,20 @@
 ################
 
 # See https://wiki.hyprland.org/Configuring/Monitors/
-{% if hyper.monitors is defined %}
-{% for monitor in hypr.monitors %}
-monitor = {{ monitor.name }}, {{ monitor.resolution }}, {{ monitor.position }}, {{ monitor.scale }}
-{% endfor %}
+{% if hypr.monitors is defined %}
+{%- for monitor in hypr.monitors -%}
+monitor = {{ monitor.name }}, {{ monitor.resolution }}, {{ monitor.position }}, {{ monitor.scale }} {{ "\n" }}
+{%- endfor -%}
 {% endif %}
 
 
 ###################
-### MY PROGRAMS ###
+### MY VARIABLES ###
 ###################
-
-# See https://wiki.hyprland.org/Configuring/Keywords/
-
-# Set programs that you use
-{% if hypr.programs is defined %}
-{% for varname, cmd in hypr.programs.items() %}
-"${{ varname }}" = "{{ cmd }}"
-{% endfor %}
+{% if hypr.variables is defined %}
+{%- for varname, cmd in hypr.variables.items() -%}
+${{ varname }} = {{ cmd }} {{ "\n" }}
+{%- endfor -%}
 {% endif %}
 
 #################
@@ -55,9 +38,9 @@ monitor = {{ monitor.name }}, {{ monitor.resolution }}, {{ monitor.position }}, 
 # Autostart necessary processes (like notifications daemons, status bars, etc.)
 # Or execute your favorite apps at launch like this:
 {% if hypr.autostart is defined %}
-{% for cmd in hypr.autostart %}
-exec-once = {{ cmd }}
-{% endfor %}
+{%- for cmd in hypr.autostart -%}
+exec-once = {{ cmd }} {{ "\n" }}
+{%- endfor -%}
 {% endif %}
 
 #############################
@@ -65,10 +48,10 @@ exec-once = {{ cmd }}
 #############################
 
 # See https://wiki.hyprland.org/Configuring/Environment-variables/
-{% if hyper.env is defined %}
-{% for key, value in hypr.env.items() %}
-env = {{ key }},{{ value }}
-{% endfor %}
+{%- if hypr.env is defined -%}
+{%- for key, value in hypr.env.items() -%}
+env = {{ key }},{{ value }} {{ "\n" }}
+{%- endfor -%}
 {% endif %}
 
 #####################
@@ -77,106 +60,78 @@ env = {{ key }},{{ value }}
 
 # https://wiki.hyprland.org/Configuring/Variables/#general
 general {
-    {{ render_dot_section(hypr.general) }}
+{{ render_section(hypr.general) }}
 }
 
 # https://wiki.hyprland.org/Configuring/Variables/#decoration
 decoration {
-    rounding = 10
-
-    # Change transparency of focused and unfocused windows
-    active_opacity = 1.0
-    inactive_opacity = 1.0
-
-    drop_shadow = true
-    shadow_range = 4
-    shadow_render_power = 3
-    col.shadow = rgba(1a1a1aee)
-
-    # https://wiki.hyprland.org/Configuring/Variables/#blur
-    blur {
-        enabled = true
-        size = 3
-        passes = 1
-
-        vibrancy = 0.1696
-    }
+{{ render_section(hypr.decoration) }}
 }
 
 # https://wiki.hyprland.org/Configuring/Variables/#animations
+{% if hypr.animations is defined %}
 animations {
-    enabled = true
-
-    # Default animations, see https://wiki.hyprland.org/Configuring/Animations/ for more
-
-    bezier = myBezier, 0.05, 0.9, 0.1, 1.05
-
-    animation = windows, 1, 7, myBezier
-    animation = windowsOut, 1, 7, default, popin 80%
-    animation = border, 1, 10, default
-    animation = borderangle, 1, 8, default
-    animation = fade, 1, 7, default
-    animation = workspaces, 1, 6, default
+    enabled = {{ hypr.animations.enabled | default('true') }}
+    bezier = {{ hypr.animations.bezier | default('myBezier, 0.05, 0.9, 0.1, 1.05') }}
+    {%- if hypr.animations.animation is defined -%}
+    {% for entry in hypr.animations.animation %}
+    animation = {{ entry }}
+    {%- endfor -%}
+    {% endif %}
 }
+{% endif %}
 
 # See https://wiki.hyprland.org/Configuring/Dwindle-Layout/ for more
+{% if hypr.dwindle is defined %}
 dwindle {
-    pseudotile = true # Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below
-    preserve_split = true # You probably want this
+{{ render_section(hypr.dwindle) }}
 }
+{% endif %}
 
 # See https://wiki.hyprland.org/Configuring/Master-Layout/ for more
+{% if hypr.master is defined %}
 master {
-    new_status = master
+{{ render_section(hypr.master) }}
 }
+{% endif %}
 
 # https://wiki.hyprland.org/Configuring/Variables/#misc
-misc {
 {% if hypr.misc is defined %}
-{% for key, value in hypr.misc.items() %}
-    {{ key }} = {{ value }}
-{% endfor %}
-{% endif %}
+misc {
+{{ render_section(hypr.misc) }}
 }
+{% endif %}
 
 #############
 ### INPUT ###
 #############
 {% if hypr.input is defined %}
-{% for key, value in hypr.input.items() %}
-    {{ key }} = {{ value }}
-{% endfor %}
+{%- for key, value in hypr.input.items() -%}
+{{ key }} = {{ value }} {{ "\n" }}
+{%- endfor -%}
 {% endif %}
 
 # https://wiki.hyprland.org/Configuring/Variables/#input
+{% if hypr.input is defined %}
 input {
-    kb_layout = us
-    kb_variant =
-    kb_model =
-    kb_options =
-    kb_rules =
-
-    follow_mouse = 1
-
-    sensitivity = 0 # -1.0 - 1.0, 0 means no modification.
-
-    touchpad {
-        natural_scroll = false
-    }
+{{ render_section(hypr.input) }}
 }
+{% endif %}
 
 # https://wiki.hyprland.org/Configuring/Variables/#gestures
+{% if hypr.gestures is defined %}
 gestures {
-    workspace_swipe = false
+{{ render_section(hypr.gestures) }}
 }
+{% endif %}
 
 # Example per-device config
 # See https://wiki.hyprland.org/Configuring/Keywords/#per-device-input-configs for more
+{% if hypr.device is defined %}
 device {
-    name = epic-mouse-v1
-    sensitivity = -0.5
+{{ render_section(hypr.device) }}
 }
-
+{% endif %}
 
 ###################
 ### KEYBINDINGS ###
@@ -186,82 +141,46 @@ device {
 $mainMod = SUPER # Sets "Windows" key as main modifier
 
 # Example binds, see https://wiki.hyprland.org/Configuring/Binds/ for more
-bind = $mainMod, Q, exec, $terminal
-bind = $mainMod, C, killactive,
-bind = $mainMod, M, exit,
-bind = $mainMod, E, exec, $fileManager
-bind = $mainMod, V, togglefloating,
-bind = $mainMod, R, exec, $menu
-bind = $mainMod, P, pseudo, # dwindle
-bind = $mainMod, J, togglesplit, # dwindle
+{% if hypr.binds is defined %}
+{%- for bind in hypr.binds -%}
+bind = {{ bind }} {{ "\n" }}
+{%- endfor -%}
+{% endif %}
 
-# Move focus with mainMod + arrow keys
-bind = $mainMod, left, movefocus, l
-bind = $mainMod, right, movefocus, r
-bind = $mainMod, up, movefocus, u
-bind = $mainMod, down, movefocus, d
+{% if hypr.bindm is defined %}
+{%- for bind in hypr.bindm -%}
+bindm = {{ bind }} {{ "\n" }}
+{%- endfor -%}
+{% endif %}
 
-# Switch workspaces with mainMod + [0-9]
-bind = $mainMod, 1, workspace, 1
-bind = $mainMod, 2, workspace, 2
-bind = $mainMod, 3, workspace, 3
-bind = $mainMod, 4, workspace, 4
-bind = $mainMod, 5, workspace, 5
-bind = $mainMod, 6, workspace, 6
-bind = $mainMod, 7, workspace, 7
-bind = $mainMod, 8, workspace, 8
-bind = $mainMod, 9, workspace, 9
-bind = $mainMod, 0, workspace, 10
+{% if hypr.bindel is defined %}
+{%- for bind in hypr.bindel -%}
+bindel = {{ bind }} {{ "\n" }}
+{%- endfor -%}
+{% endif %}
 
-# Move active window to a workspace with mainMod + SHIFT + [0-9]
-bind = $mainMod SHIFT, 1, movetoworkspace, 1
-bind = $mainMod SHIFT, 2, movetoworkspace, 2
-bind = $mainMod SHIFT, 3, movetoworkspace, 3
-bind = $mainMod SHIFT, 4, movetoworkspace, 4
-bind = $mainMod SHIFT, 5, movetoworkspace, 5
-bind = $mainMod SHIFT, 6, movetoworkspace, 6
-bind = $mainMod SHIFT, 7, movetoworkspace, 7
-bind = $mainMod SHIFT, 8, movetoworkspace, 8
-bind = $mainMod SHIFT, 9, movetoworkspace, 9
-bind = $mainMod SHIFT, 0, movetoworkspace, 10
+{% if hypr.bindl is defined %}
+{%- for bind in hypr.bindl -%}
+bindl = {{ bind }} {{ "\n" }}
+{%- endfor -%}
+{% endif %}
 
-# Example special workspace (scratchpad)
-bind = $mainMod, S, togglespecialworkspace, magic
-bind = $mainMod SHIFT, S, movetoworkspace, special:magic
-
-# Scroll through existing workspaces with mainMod + scroll
-bind = $mainMod, mouse_down, workspace, e+1
-bind = $mainMod, mouse_up, workspace, e-1
-
-# Move/resize windows with mainMod + LMB/RMB and dragging
-bindm = $mainMod, mouse:272, movewindow
-bindm = $mainMod, mouse:273, resizewindow
-
-# Laptop multimedia keys for volume and LCD brightness
-bindel = ,XF86AudioRaiseVolume, exec, wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+
-bindel = ,XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
-bindel = ,XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
-bindel = ,XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
-bindel = ,XF86MonBrightnessUp, exec, brightnessctl s 10%+
-bindel = ,XF86MonBrightnessDown, exec, brightnessctl s 10%-
-
-# Requires playerctl
-bindl = , XF86AudioNext, exec, playerctl next
-bindl = , XF86AudioPause, exec, playerctl play-pause
-bindl = , XF86AudioPlay, exec, playerctl play-pause
-bindl = , XF86AudioPrev, exec, playerctl previous
 
 ##############################
 ### WINDOWS AND WORKSPACES ###
 ##############################
-
 # See https://wiki.hyprland.org/Configuring/Window-Rules/ for more
 # See https://wiki.hyprland.org/Configuring/Workspace-Rules/ for workspace rules
 
 # Example windowrule v1
-# windowrule = float, ^(kitty)$
+{% if hypr.windowrule is defined %}
+{%- for rule in hypr.windowrule -%}
+windowrule = {{ rule }} {{ "\n" }}
+{%- endfor %}
+{% endif %}
 
-# Example windowrule v2
-# windowrulev2 = float,class:^(kitty)$,title:^(kitty)$
-
-windowrulev2 = suppressevent maximize, class:.* # You'll probably like this.
+{% if hypr.windowrulev2 is defined %}
+{%- for rule in hypr.windowrulev2 -%}
+windowrulev2 = {{ rule }} {{ "\n" }}
+{%- endfor %}
+{% endif %}
