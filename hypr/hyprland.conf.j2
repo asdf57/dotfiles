@@ -27,7 +27,7 @@
 # See https://wiki.hyprland.org/Configuring/Monitors/
 {% if hypr.monitors is defined %}
 {%- for monitor in hypr.monitors -%}
-monitor = {{ monitor.name }}, {{ monitor.resolution }}, {{ monitor.position }}, {{ monitor.scale }} {{ "\n" }}
+monitor = {{ monitor.name }},{{ monitor.resolution }},{{ monitor.position }},{{ monitor.scale }} {{ "\n" }}
 {%- endfor -%}
 {% endif %}
 
