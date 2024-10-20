@@ -1,9 +1,6 @@
 # Configuration file for dnsmasq.
 
-# Listen on wlan0 interface (modify this if you're using a different interface)
-interface={{ primary_interface }}
-
-# Bind only to the interfaces specified
+# Bind to all interfaces
 bind-interfaces
 
 # Disable DNS services since this is a proxy-only setup
