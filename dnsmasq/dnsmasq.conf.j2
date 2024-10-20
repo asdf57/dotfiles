@@ -1,0 +1,26 @@
+# Configuration file for dnsmasq.
+
+# Listen on wlan0 interface (modify this if you're using a different interface)
+interface={{ primary_interface }}
+
+# Bind only to the interfaces specified
+bind-interfaces
+
+# Disable DNS services since this is a proxy-only setup
+port=0
+
+# Enable the TFTP server
+enable-tftp
+
+# Set the TFTP root directory
+tftp-root=/srv/tftp
+
+# Log DHCP requests for debugging purposes
+log-dhcp
+log-queries
+
+dhcp-vendorclass=set:UEFI,PXEClient:Arch:00007
+dhcp-boot=tag:UEFI,boot.ipxe,{{ ansible_host }}
+
+# Ensure dnsmasq acts as a DHCP relay
+dhcp-range=192.168.1.0,proxy
