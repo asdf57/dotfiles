@@ -1,3 +1,4 @@
+{% if hypr is defined %}
 {% macro render_section(section, section_name="", indent=4) %}
     {%- if section is not mapping and section is sequence and section is not string -%}
     {%- for entry in section -%}
@@ -172,4 +173,5 @@ windowrule = {{ rule }} {{ "\n" }}
 {%- for rule in hypr.windowrulev2 -%}
 windowrulev2 = {{ rule }} {{ "\n" }}
 {%- endfor %}
+{% endif %}
 {% endif %}
